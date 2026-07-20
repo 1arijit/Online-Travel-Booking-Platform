@@ -1,0 +1,67 @@
+<% layout("../layouts/boilerplate") -%>
+    <div class="filters">
+        <div class="filter">
+            <i class="fa-solid fa-fire"></i>
+            <p>Trending</p>
+        </div>
+        <div class="filter">
+            <i class="fa-solid fa-mountain"></i>
+            <p>Mountains</p>
+        </div>
+        <div class="filter">
+            <i class="fa-solid fa-city"></i>
+            <p>City-scape</p>
+        </div>
+        <div class="filter">
+            <i class="fa-solid fa-umbrella-beach"></i>
+            <p>Beach-holiday</p>
+        </div>
+        <div class="filter">
+            <i class="fa-solid fa-volleyball"></i>
+            <p>Sports</p>
+        </div>
+        <div class="filter">
+            <i class="fa-brands fa-pied-piper-hat"></i>
+            <p>Plains-hotel</p>
+        </div>
+
+        <div class="tax-switch">
+            <div class="form-check form-switch tax-s-s">
+                <input class="form-check-input switch" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                <label class="form-check-label tax-label" for="flexSwitchCheckDefault">Show GST amount</label>
+            </div>
+        </div>
+    </div>
+    <br> 
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+        <% for (let listing of listings){%>
+            <a class="card-link" href="/listings/<%=listing._id%>">
+                <div class="card col listing-card">
+                    <img src="<%=listing.image.url%>" class="card-img-top" alt="listing-image" style="height: 20rem;">
+                    <div class="card-img-overlay">airbnb</div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <b>
+                                <%=listing.title%>
+                            </b><br>
+                            &#8377;  <span><%=((listing.price)*1.18).toLocaleString("en-IN")%>/night GST included</span> <span id="tax" class="tax">(&#8377;<%= (listing.price*.18).toFixed(2) %> GST)</span>
+                        </p>
+                    </div>
+                </div>
+            </a>
+        <%}%>
+    </div>
+
+    <script>
+        let taxSwtich = document.getElementById('flexSwitchCheckDefault');
+            taxSwtich.addEventListener('click', (event) => {
+                let tax = document.getElementsByClassName('tax');
+                for (t of tax) {
+                    if (t.style.display === '' || t.style.display === 'none') {
+                        t.style.display = 'inline';
+                    } else {
+                        t.style.display = 'none';
+                    }
+                }
+            });
+    </script>

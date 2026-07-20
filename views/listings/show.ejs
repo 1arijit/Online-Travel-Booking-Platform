@@ -1,0 +1,136 @@
+<% layout("../layouts/boilerplate") -%>
+
+<div class="row mt-3 mb-3">
+    
+    
+    <div class="col-8 offset-2">
+    <h2><%=listing.title%></h2>
+    </div>
+    <div class="card listing-card col-8 offset-2">
+        <img class="card-img-top show-img" src="<%=listing.image.url%>" alt="listing-image">
+        <div class="card-body pt-2">
+            <p class="card-text">
+                 Owned by: <i><%=listing.owner.username%></i> 
+                 <br> <br>
+                  <%=listing.description%>
+                   <br>
+                &#8377;<%= ((listing.price)*1.18).toLocaleString("en-IN") %>/night (&#8377;<%= (listing.price*.18).toFixed(2) %> GST included) 
+                <br>
+
+                <%=listing.location%>
+                <br>
+                <%=listing.country%>
+            </p>
+        </div>
+    </div>
+
+    <% if ( currentUser && ( currentUser._id !== listing.owner._id ) ) {%>
+        <div class="btns">
+            <a class="btn btn-success col-2 offset-2" href="/#">Book bnb</a>
+        </div>
+    <%}%>
+
+    <%if(currentUser && currentUser._id.equals(listing.owner._id)){%>
+    <div class="btns">
+        <a class="btn btn-danger col-1 offset-2" href="/listings/<%=listing._id%>/edit">Edit</a>
+        
+        <form action="/listings/<%=listing._id%>?_method=DELETE" method="post">
+            <button class="btn btn-dark" type="submit">Delete listing</button>
+        </form>
+    </div>
+    <%}%>
+
+    <div class="col-8 offset-2">
+    <br> <hr>
+    <%if(currentUser){%>
+    <h4>Leave some review</h4>
+    <form method="POST"  action="/listings/<%= listing._id%>/reviews" class="needs-validation" novalidate>
+        <div class="mb-1">
+            <fieldset class="starability-slot">
+                <input 
+                type="radio" 
+                id="no-rate" 
+                class="input-no-rate" 
+                name="rating" 
+                value="1" 
+                checked 
+                aria-label="No rating." />
+                <input type="radio" id="first-rate1" name="rating" value="1" />
+                <label for="first-rate1" title="Terrible">1 star</label>
+                <input type="radio" id="first-rate2" name="rating" value="2" />
+                <label for="first-rate2" title="Not good">2 stars</label>
+                <input type="radio" id="first-rate3" name="rating" value="3" />
+                <label for="first-rate3" title="Average">3 stars</label>
+                <input type="radio" id="first-rate4" name="rating" value="4" />
+                <label for="first-rate4" title="Very good">4 stars</label>
+                <input type="radio" id="first-rate5" name="rating" value="5" />
+                <label for="first-rate5" title="Amazing">5 stars</label>
+            </fieldset>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="comment">Comment</label>
+            <textarea class="form-control" cols="30"  name="comment" id="comment" required></textarea>
+            <div class="invalid-feedback">We would appreciate some words</div>
+        </div>
+        <br>
+        <button class="btn btn-outline-primary" type="submit">Submit</button>
+    </form>
+
+    <hr>
+    <%}%>
+    <%if(listing.reviews[0]){%>
+    <h4><b>All reviews</b></h4>
+        
+
+    <div class="row">
+        <% for (let review of listing.reviews){%>
+            <div class="card col-5 mb-3 ms-3 pb-3 pt-3">
+                <div class="card-body">
+                    <h5 class="card-title"><i><u>@<%=review.author.username%></u></i></h5>
+                    <p class="starability-result card-text" data-rating="<%= review.rating %>"></p>
+                    <p class="card-text">
+                        <%=review.comment%>
+                    </p>
+                    <h6 class="card-subtitle text-muted">
+                        <%=review.createdAt.toDateString()%>
+                    </h6>
+                    <br>
+                    <%if(currentUser && review.author._id.equals(currentUser._id)){%>
+                    <form action="/listings/<%=listing._id%>/reviews/<%= review._id %>?_method=DELETE" method="post">
+                        <button class="btn btn-dark" type="submit">Delete</button>
+                    </form>
+                    <%}%>
+                </div>
+                </div>
+                <%}%>
+            </div>     
+         <%}%>
+    </div>
+    <div class="offset-2 mt-3">
+        <div id="map-box"></div>
+    </div>
+    <script>
+        let map_api = '<%=process.env.GEOAPIFY_API_KEY %>';
+        let lon = `<%=listing.geometry.coordinates[0]%>`;
+        let lat = `<%=listing.geometry.coordinates[1]%>`;
+        const map = new maplibregl.Map({
+            container: 'map-box',
+            style: `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${map_api}`,
+            center: [lon, lat],
+            zoom: 9
+        });
+        map.addControl(new maplibregl.NavigationControl());
+
+        const markerIcon = document.createElement("img");
+            markerIcon.src = `https://api.geoapify.com/v2/icon?type=material&color=%23ff5722&size=64&apiKey=${map_api}`;
+            markerIcon.style.width = "40px";
+            markerIcon.style.height = "60px";
+        // Add marker to map
+        new maplibregl.Marker({ element: markerIcon })
+            .setLngLat([lon, lat]) // [lon, lat]
+            .setPopup(new maplibregl.Popup().setHTML("<i>Book this listing for exact location</i>")) // popup
+            .addTo(map);
+    </script>
+</div>
+
+    

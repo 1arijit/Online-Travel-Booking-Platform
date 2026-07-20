@@ -1,0 +1,135 @@
+<% layout("../layouts/boilerplate") -%>
+
+
+    <div class="row mb-2">
+        <div class="col-10 offset-1">
+
+        
+    
+        <h2>Create New Listing</h2>
+        <form action="/listings" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input class="form-control" type="text" name="title" placeholder="enter title" id="title" required>
+                <div class="invalid-feedback">
+                    Required
+                </div>
+            </div>
+            
+            
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" name="description"  placeholder="description" id="description" required></textarea>
+                <div class="invalid-feedback">
+                    Required
+                </div>
+            </div>
+
+    
+            <div class="mb-3">
+                <label for="image" class="form-label">Upload image</label>
+                <input class="form-control" id="image" type="file" name="image" >
+            </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">Price (INR)</label>
+                    <input class="form-control" id="price" type="number" name="price" required>
+                    <div class="invalid-feedback">
+                        Required
+                    </div>
+                </div>
+
+            <div class="mb-3">
+                <label for="country" class="form-label">Country</label>
+                <input class="form-control country_inp_box" type="text" name="country" placeholder="country" id="country" readonly>
+                <div class="invalid-feedback">
+                    Required
+                </div>
+            </div>
+            
+            
+            <div class="mb-3">
+                <label for="location" class="form-label">Location</label>
+                <input placeholder="enter location" class="form-control location-inp" oninput="inputFetch()" id="location" type="text" name="location" required>
+                <div id="autocomplete-data"></div>
+                <div class="invalid-feedback">
+                    Required
+                </div>
+            </div>
+            
+            <div class="mt-3 mb-3">
+                <div class="mb-3 pb-3" id="map-box"></div>
+            </div>
+            
+
+
+            <div>
+                <button class="btn btn-dark list-btn" type="submit">List</button>
+            </div>
+            
+        </form>
+        </div>
+    </div>
+
+    <script>
+
+        let lng = 0, lat = 0;
+
+        let map_api = '<%=process.env.GEOAPIFY_API_KEY %>';
+        const map = new maplibregl.Map({
+            container: 'map-box',
+            style: `https://maps.geoapify.com/v1/styles/osm-carto/style.json?apiKey=${map_api}`,
+            center: [lng, lat],
+            zoom: 16,
+        });
+        map.addControl(new maplibregl.NavigationControl());
+
+
+        async function inputFetch (){
+            let text = document.getElementsByClassName('location-inp')[0].value;
+            let data = await fetch(`/autocomplete/location?text=${text}`);
+            let formatted_data = await data.json();
+            let results = formatted_data.results;
+            let autocomplete_data = document.getElementById('autocomplete-data');
+            let pTags = autocomplete_data.querySelectorAll('p');
+            pTags.forEach(p=>p.remove());
+            if(results){
+                for (result of results) {
+                    let p = document.createElement('p');
+                    p.classList.add('auto-cls');
+                    p.innerText = result.formatted;
+                    autocomplete_data.append(p);
+                }
+            }
+        }
+        let autocomplete_data = document.getElementById('autocomplete-data');
+        // console.log(autocomplete_data);
+        autocomplete_data.addEventListener('click', async (event)=>{
+            let autoDataToBeWritten = event.target.innerText;
+            let location_inp = document.getElementsByClassName('location-inp')[0];
+            location_inp.value = autoDataToBeWritten;
+            let response = await fetch(`/geoapify/geocode?text=${autoDataToBeWritten}`);
+            let formattedData = await response.json();
+            console.log(formattedData.query.parsed.country);
+            let country_inp_box = document.getElementsByClassName('country_inp_box')[0];
+            country_inp_box.value = formattedData.query.parsed.country;
+            map.setCenter([formattedData.results[0].lon, formattedData.results[0].lat]);
+        });
+
+
+        //marker creation
+        // const markerIcon = document.createElement("img");
+        // markerIcon.src = `https://api.geoapify.com/v2/icon?type=material&color=%23ff5722&size=64&apiKey=${map_api}`;
+        // markerIcon.style.width = "40px";
+        // markerIcon.style.height = "60px";
+
+        // let markerOnMap = new maplibregl.Marker({ element: markerIcon });
+        // // .setLngLat([lon, lat])
+        // // .addTo(map);
+
+        // map.on('click', (event)=>{
+        //     let {lng, lat} = event.lngLat;
+        //     markerOnMap.setLngLat([lng, lat])
+        //     .addTo(map);
+        // });
+    </script>

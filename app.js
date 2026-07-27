@@ -18,6 +18,7 @@ const User = require("./models/user.js");
 const listingsRouter = require("./routes/listings.js");
 const reviewsRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
+const mapRouter = require("./routes/map.js");
 
 main().then(res=>{console.log("connected to database");}).catch(err=>{console.log(err);});
 async function main(){
@@ -59,21 +60,22 @@ app.use((req, res, next)=>{
 });
 app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
-app.use("/",userRouter);
-app.get('/autocomplete/location',async (req, res, next)=>{
-    let map_api_key = `${process.env.GEOAPIFY_API_KEY}`;
-    let {text} = req.query;
-    const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${text}&lang=en&limit=3&format=json&apiKey=${map_api_key}`);
-    const data = await response.json();
-    res.json(data);
-});
-app.get('/geoapify/geocode',async(req, res, next)=>{
-    let map_api_key = `${process.env.GEOAPIFY_API_KEY}`;// bad request problem with invalid text needs to be taken care of here
-    let {text} = req.query;
-    const response = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${text}&lang=en&limit=1&format=json&apiKey=${map_api_key}`);
-    const data = await response.json();
-    res.json(data);
-})
+app.use("/geoapify", mapRouter);
+app.use("/", userRouter);
+// app.get('/geoapify/autocomplete/location',async (req, res, next)=>{
+//     let map_api_key = `${process.env.GEOAPIFY_API_KEY}`;
+//     let {text} = req.query;
+//     const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${text}&lang=en&limit=3&format=json&apiKey=${map_api_key}`);
+//     const data = await response.json();
+//     res.json(data);
+// });
+// app.get('/geoapify/geocode',async(req, res, next)=>{
+//     let map_api_key = `${process.env.GEOAPIFY_API_KEY}`;// bad request problem with invalid text needs to be taken care of here
+//     let {text} = req.query;
+//     const response = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${text}&lang=en&limit=1&format=json&apiKey=${map_api_key}`);
+//     const data = await response.json();
+//     res.json(data);
+// })
  
 app.use((req, res, next)=>{
     return next(new ExpressError(404, "page not found"));

@@ -10,7 +10,7 @@ router.route('/')
     .get(wrapAsync(listingController.index))   // all listing
     .post(isLoggedin, upload.single('image'),validateListing, wrapAsync(listingController.postNewListing));   //create new listing
 
-//request for new listing
+//request for new listing 
 router.get("/new", isLoggedin,  listingController.newListingForm);
 
 router.route('/:id')

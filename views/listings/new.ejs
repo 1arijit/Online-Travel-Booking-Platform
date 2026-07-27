@@ -87,7 +87,7 @@
 
         async function inputFetch (){
             let text = document.getElementsByClassName('location-inp')[0].value;
-            let data = await fetch(`/autocomplete/location?text=${text}`);
+            let data = await fetch(`/geoapify/autocomplete/location?text=${text}`);
             let formatted_data = await data.json();
             let results = formatted_data.results;
             let autocomplete_data = document.getElementById('autocomplete-data');
@@ -108,11 +108,14 @@
             let autoDataToBeWritten = event.target.innerText;
             let location_inp = document.getElementsByClassName('location-inp')[0];
             location_inp.value = autoDataToBeWritten;
+            // **************GEOCODE*************\\  
             let response = await fetch(`/geoapify/geocode?text=${autoDataToBeWritten}`);
             let formattedData = await response.json();
-            console.log(formattedData.query.parsed.country);
+            // console.log(formattedData.query.parsed.country);
             let country_inp_box = document.getElementsByClassName('country_inp_box')[0];
             country_inp_box.value = formattedData.query.parsed.country;
+            // console.log(formattedData.results[0].lon)
+            // console.log(formattedData.results[0].lat)
             map.setCenter([formattedData.results[0].lon, formattedData.results[0].lat]);
         });
 

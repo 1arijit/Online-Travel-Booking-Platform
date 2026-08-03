@@ -5,6 +5,10 @@ const passport = require("passport");
 const { isLoggedin, validateSignup } = require("../middleware.js");
 const {saveRedirectUrl} = require("../middleware.js");
 const userController = require('../controllers/user.js');
+const listingController = require('../controllers/listing.js');
+
+
+router.get("/" , listingController.index );
 
 router.get("/signup", userController.renderSignupForm );
 

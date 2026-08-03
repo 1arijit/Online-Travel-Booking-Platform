@@ -1,7 +1,7 @@
-// if (process.env.NODE_ENV != 'production') {
-    require('dotenv').config()
-// }
-const port = 8080;
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+const port = process.env.PORT || 8080;
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -21,7 +21,7 @@ const reviewsRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
 const mapRouter = require("./routes/map.js");
 
-const dbURL = process.env.MONGODB_URI;
+const dbURL = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/projectWithCourse';
 
 main().then(res=>{console.log("connected to database");}).catch(err=>{console.log(err);});
 async function main(){
@@ -60,9 +60,10 @@ passport.serializeUser(User.serializeUser()); // serializes user in session(adds
 passport.deserializeUser(User.deserializeUser()); // deserializes user
 
 
-app.get("/",(req, res)=>{
-    res.send("You are connected to the server");
-});
+// app.get("/",(req, res)=>{
+//     const listings = await Listing.find({});
+//     res.render("index.ejs", { listings });
+// });
 
 //flash
 app.use((req, res, next)=>{
@@ -71,10 +72,10 @@ app.use((req, res, next)=>{
     res.locals.currentUser = req.user;
     next();
 });
+app.use("/", userRouter);
 app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
 app.use("/geoapify", mapRouter);
-app.use("/", userRouter);
 app.use((req, res, next)=>{
     return next(new ExpressError(404, "page not found"));
 });

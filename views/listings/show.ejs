@@ -24,11 +24,6 @@
         </div>
     </div>
 
-    <% if ( currentUser && ( currentUser._id !== listing.owner._id ) ) {%>
-        <div class="btns">
-            <a class="btn btn-success col-2 offset-2" href="/#">Book bnb</a>
-        </div>
-    <%}%>
 
     <%if(currentUser && currentUser._id.equals(listing.owner._id)){%>
     <div class="btns">
@@ -38,6 +33,10 @@
             <button class="btn btn-dark" type="submit">Delete listing</button>
         </form>
     </div>
+    <%} else if ( currentUser ) { %> 
+        <div class="btns">
+            <a class="btn btn-success col-2 offset-2" href="/#">Book bnb</a>
+        </div>
     <%}%>
 
     <div class="col-8 offset-2">

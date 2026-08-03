@@ -1,6 +1,6 @@
-if (process.env.NODE_ENV != 'production') {
+// if (process.env.NODE_ENV != 'production') {
     require('dotenv').config()
-}
+// }
 const port = 8080;
 const express = require("express");
 const app = express();
@@ -8,7 +8,8 @@ const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require('method-override');
 const ejsMate = require("ejs-mate");
-const session = require("express-session");
+const session = require('express-session');
+const MongoStore = require('connect-mongo').MongoStore;
 const flash = require("connect-flash");
 const passport = require("passport");
 const ExpressError = require('./utils/ExpressError.js');
@@ -20,9 +21,11 @@ const reviewsRouter = require("./routes/reviews.js");
 const userRouter = require("./routes/user.js");
 const mapRouter = require("./routes/map.js");
 
+const dbURL = process.env.MONGODB_URI;
+
 main().then(res=>{console.log("connected to database");}).catch(err=>{console.log(err);});
 async function main(){
-    await mongoose.connect("mongodb://127.0.0.1:27017/airbnb");
+    await mongoose.connect(dbURL);
 }
 
 app.set("view engine", "ejs");
@@ -34,10 +37,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 app.use(session({
-    secret:"secretcode",
-    resave:false,
-    saveUninitialized:true,
+    store: MongoStore.create({
+        mongoUrl: dbURL,
+        touchAfter: 24 * 3600,
+        autoRemove: 'native'
+    }),
+    secret: process.env.SESSION_SECRET || "keyboard car",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    },
 }));
+
 app.use(flash());
 
 app.use(passport.initialize());
@@ -62,21 +75,6 @@ app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewsRouter);
 app.use("/geoapify", mapRouter);
 app.use("/", userRouter);
-// app.get('/geoapify/autocomplete/location',async (req, res, next)=>{
-//     let map_api_key = `${process.env.GEOAPIFY_API_KEY}`;
-//     let {text} = req.query;
-//     const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${text}&lang=en&limit=3&format=json&apiKey=${map_api_key}`);
-//     const data = await response.json();
-//     res.json(data);
-// });
-// app.get('/geoapify/geocode',async(req, res, next)=>{
-//     let map_api_key = `${process.env.GEOAPIFY_API_KEY}`;// bad request problem with invalid text needs to be taken care of here
-//     let {text} = req.query;
-//     const response = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${text}&lang=en&limit=1&format=json&apiKey=${map_api_key}`);
-//     const data = await response.json();
-//     res.json(data);
-// })
- 
 app.use((req, res, next)=>{
     return next(new ExpressError(404, "page not found"));
 });

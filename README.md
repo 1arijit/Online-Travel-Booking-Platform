@@ -148,8 +148,8 @@ project/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
+git clone https://github.com/1arijit/Online-Travel-Booking-Platform.git
+cd Online-Travel-Booking-Platform
 ```
 
 ### 2. Install dependencies
@@ -187,7 +187,7 @@ nodemon app.js
 The application will be available at:
 
 ```text
-http://localhost:3000
+http://localhost:8080
 ```
 
 ---
@@ -267,8 +267,8 @@ MongoDB
 
 **Your Name**
 
-* GitHub: [Your GitHub Profile](https://github.com/your-username)
-* LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/your-profile)
+* GitHub: [GitHub](https://github.com/1arijit)
+* LinkedIn: [LinkedIn](https://www.linkedin.com/in/arijit-de-779552297/)
 
 ---
 
